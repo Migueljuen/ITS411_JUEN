@@ -1,134 +1,80 @@
 
-import React, { useEffect, useState } from 'react'
-import { View, Text, ScrollView, TextInput, Alert, TouchableOpacity } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Keyboard, SafeAreaView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
-import Feather from '@expo/vector-icons/Feather';
-interface Todo {
-    id: string;
-    text: string;
-    completed: boolean;
-}
+export default function todo() {
+    const [tasks, setTasks] = useState(["Buy milk", "Walk dog"])
+    const [newTask, setNewTask] = useState("")
+    // const [isChecked, setIsChecked] = useState<boolean[]>(Array(tasks.length).fill(false));
 
-export default function ToDo() {
-    const [userInput, setUserInput] = useState<string>("");
-    const [todos, setTodos] = useState<Todo[]>([]);
-
-    // useEffect(() => {
-
-    // }, [userInput])
-
-    const addTodo = (): void => {
-        if (userInput.trim() === "") {
-            Alert.alert("Please enter a todo item.");
-            return;
+    // function toggleInbox(index: number) {
+    //     setIsChecked(prev =>
+    //         prev.map((value, i) => (i === index ? !value : value))
+    //     )
+    // }
+    function addTask() {
+        if (newTask.trim() === "") {
+            console.log("itot")
+        } else {
+            setTasks(t => [...t, newTask]);
+            setNewTask("");
         }
-        const newTodo: Todo = {
-            id: Date.now().toString(),
-            text: userInput.trim(),
-            completed: false
-        };
-
-        setTodos([...todos, newTodo]);
-        setUserInput("");
-    }
-    const deleteTodo = (id: string): void => {
-        Alert.alert("Delete todo", `Are you sure you want to delete this todo?`,
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel"
-                },
-                {
-                    text: "Delete",
-                    style: "destructive",
-                    onPress: () => {
-                        setTodos(todos.filter(todo => todo.id !== id));
-                    }
-                }
-            ]
-        );
     }
 
+    function deleteTask(index: number) {
+        setTasks(t => t.filter((_, i) => i !== index));
+    }
+
+    function handleInputChange(text: string) {
+        setNewTask(text);
+    }
 
     return (
-        <SafeAreaView className='flex-1 bg-gray-50'>
-            <View className='flex-1 px-6 py-4'>
-                {/* Header */}
-                <View className='my-12'>
-                    <Text className='text-3xl font-bold text-gray-800 text-center'>
-                        Todo List
-                    </Text>
-                    <Text className='text-gray-500 text-center mt-1'>
-                        {todos.length} {todos.length === 1 ? 'task' : 'tasks'}
-                    </Text>
-                </View>
+        <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}>
+            <SafeAreaView className='bg-white flex-1'>
 
-                {/* Input Section */}
-                <View className='mb-6'>
-                    <View className='flex-row gap-4'>
-                        <TextInput
-                            value={userInput}
-                            onChangeText={setUserInput}
-                            className='flex-1 px-4 py-3 rounded-lg border border-gray-200 '
-                            onSubmitEditing={addTodo}
-                            returnKeyType="done"
-                        />
-                        <TouchableOpacity
-                            onPress={addTodo}
-                            className='bg-blue-500 px-6 py-3 rounded-lg justify-center items-center'
-                        >
-                            <Text className='text-white font-semibold '>Add</Text>
-                        </TouchableOpacity>
+                <View className='flex-1 max-w-[85%] mx-auto'>
+                    <Text className='mt-24 text-3xl font-bold '>
+                        Your To Do
+                    </Text>
+
+                    <View className=' flex-1 justify-start items-center'>
+
+                        <View className='flex flex-row my-16   w-full justify-center items-end   gap-4'>
+                            <TextInput value={newTask} onChangeText={handleInputChange}
+                                placeholder='Add new task'
+                                placeholderTextColor={'#00000080'}
+                                className='border-b-2 border-black/20 flex-1 p-2 text-[black/50]' ></TextInput>
+                            <TouchableOpacity className=' p-2 bg-[#434343]  rounded-xl' onPress={addTask}><Ionicons name="add" size={24} color="white" /></TouchableOpacity>
+                        </View>
+
+                        {tasks.map((tasks, index) => (
+                            <View key={index} className='flex flex-row w-full justify-between items-center px-4 py-4 mb-4 border border-black/20 rounded-xl'>
+                                {/* <Checkbox
+                                className=''
+                                value={isChecked[index]}
+                                onValueChange={() => toggleInbox(index)}
+                                color={isChecked ? "#434343" : undefined}
+                            /> */}
+                                <Text className=''>{tasks}</Text>
+                                <TouchableOpacity onPress={() => deleteTask(index)}>
+                                    <Ionicons className='' name="close" size={24} color="#434343" />
+                                </TouchableOpacity>
+                            </View>
+
+                        )
+                        )}
+
+                        <View className='mt-6 gap-2'>
+                            <Text className=' font-medium'>You have {tasks.length} task/s </Text>
+                            <Text className='text-black/50 italic'>"Start where you are. Use what you have. Do what you can." - Arthur Ashe </Text>
+                        </View>
                     </View>
+
                 </View>
-
-                {/* Todo List */}
-                <ScrollView
-                    className='flex-1'
-                    showsVerticalScrollIndicator={false}
-                >
-                    {todos.length === 0 ? (
-                        <View className='flex-1 justify-center items-center py-12'>
-                            <Text className='text-gray-400 text-lg text-center'>
-                                No todos yet!{'\n'}Add one above to get started.
-                            </Text>
-                        </View>
-                    ) : (
-                        <View className='space-y-3'>
-                            {todos.map((todo) => (
-                                <View
-                                    key={todo.id}
-                                    className='bg-white p-4 mt-2 rounded-lg border border-gray-200 flex-row items-center justify-between'
-                                >
-                                    <TouchableOpacity
-                                        onPress={() => console.log(`Toggle todo ${todo.id}`)}
-                                        className='flex-row items-center flex-1 '
-                                    >
-
-                                        <Text className={`flex-1 text-gray-800 ${todo.completed
-                                            ? 'line-through text-gray-500'
-                                            : ''
-                                            }`}>
-                                            {todo.text}
-                                        </Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        onPress={() => deleteTodo(todo.id)}
-                                        className=' px-3 py-2 rounded-md ml-3'
-                                    >
-                                        <Text className='text-white'>
-                                            <Feather name="delete" size={24} color="#2f2f2f" />
-
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
-                        </View>
-                    )}
-                </ScrollView>
-            </View>
-        </SafeAreaView>
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
     )
 }
